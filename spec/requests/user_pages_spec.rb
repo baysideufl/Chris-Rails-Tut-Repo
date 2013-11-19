@@ -70,7 +70,7 @@ describe "User pages" do
         fill_in "Name",         with: "Example User"
         fill_in "Email",        with: "user@example.com"
         fill_in "Password",     with: "foobar"
-        fill_in "Confirmation", with: "foobar"
+        fill_in "Confirm Password", with: "foobar"
       end
 
       it "should create a user" do
@@ -132,13 +132,25 @@ describe "User pages" do
         { user: { admin: true, password: user.password, password_confirmation: user.password } }
       end
       before do
-        sign_in user, no_capybara:true
+        sign_in user, no_capybara: true
         patch user_path(user), params
       end
       specify { expect(user.reload).not_to be_admin }
     end
 
   end
+
+
+  describe "when user is not signed in" do
+    let(:user) { FactoryGirl.create(:user) }
+    before do
+      visit users_path
+    end
+
+    it { should_not have_content("Update your profile") }
+    it { should_not have_title("Edit user") }
+    it { should_not have_link('change', href: 'http://gravatar.com/emails') }
+  end  
 
 end
 

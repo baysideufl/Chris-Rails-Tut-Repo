@@ -12,10 +12,12 @@ class UsersController < ApplicationController
   end
 
   def new
+    redirect_to(root_url) if signed_in?
     @user = User.new
   end
 
   def create
+    redirect_to(root_url) if signed_in?
     @user = User.new(user_params)
     if @user.save
       sign_in @user
@@ -40,8 +42,14 @@ class UsersController < ApplicationController
   end
 
   def destroy
-    User.find(params[:id]).destroy
-    flash[:success] = "User deleted."
+    @user_to_destroy = User.find(params[:id])
+    if @user_to_destroy != current_user
+      @user_to_destroy.destroy
+      flash[:success] = "User deleted."
+    else
+      flash[:success] = "Cannot delete yourself!"
+    end      
+    # User.find(params[:id]).destroy
     redirect_to users_url
   end
 
